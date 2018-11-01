@@ -36,14 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.w("NoError0", response.body().toString());
-                //Log.w("NoError1", response.body().string());
                 if (!response.isSuccessful()) {
                     Log.e("Error!", response.toString());
                 } else {
                     String str = response.body().string();
-                    Log.w("NoError", str);
-
                     setListElements(str);
                 }
             }
@@ -56,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             int arraySize = jsonArray.size();
             for (int i = 0; i<arraySize; i++){
-                Log.w("Tafy", jsonArray.get(i).toString());
                 JsonObject obj = jsonArray.get(i).getAsJsonObject();
                 ListDetails listDetails = new ListDetails();
                 listDetails.setName(obj.get("name").getAsString());
@@ -68,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 ret.add(listDetails);
             }
         } catch (Exception e) {
-            Log.w("Taf", "msf", e);
             ListDetails listDetails = new ListDetails();
             listDetails.setName("Error");
             listDetails.setDescription("Could not fetch resources");
@@ -81,14 +75,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setListElements(String responseBody){
-        Log.w("NoError100", responseBody);
 
         JsonParser jp = new JsonParser();
         JsonElement root = jp.parse(responseBody);
         final JsonArray jsonArray = root.getAsJsonArray();
-
-//        Log.w("NoError10", Boolean.toString(jsonArray.isJsonArray()));
-//        Log.w("NoError11", jsonArray.getAsString());
 
         runOnUiThread(new Runnable() {
             @Override
@@ -105,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         getHttpResponse();
     }
