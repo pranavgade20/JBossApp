@@ -14,7 +14,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -23,14 +22,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
-
-    String urlLoc = "https://api.github.com/orgs/JBossOutreach/repos";
-    JsonArray jArr;
+public class subActivity extends AppCompatActivity {
     OkHttpClient client = new OkHttpClient();
 
     public void getHttpResponse() {
-        Request request = new Request.Builder().url(urlLoc).build();
+        Request request = new Request.Builder().url(getIntent().getStringExtra("url")).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -50,8 +46,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void setListElements(String responseBody){
+
+        JsonParser jp = new JsonParser();
+        JsonElement root = jp.parse(responseBody);
+        final JsonArray jsonArray = root.getAsJsonArray();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final ListView listView = (ListView) findViewById(R.id.sub_list_item);
+                ArrayList<ListDetails> list_details = getListViewElements(jsonArray);
+                listView.setAdapter(new ListBaseAdapter(getApplicationContext(), list_details));
+
+//                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                    }
+//                });
+            }
+        });
+    }
+
     public ArrayList<ListDetails> getListViewElements(JsonArray jsonArray) {
-        jArr = jsonArray;
         ArrayList<ListDetails> ret = new ArrayList<ListDetails>();
 
         try {
@@ -59,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i<arraySize; i++){
                 JsonObject obj = jsonArray.get(i).getAsJsonObject();
                 ListDetails listDetails = new ListDetails();
-                listDetails.setName(obj.get("name").getAsString());
-                if (!obj.get("description").isJsonNull()) {
-                    listDetails.setDescription(obj.get("description").getAsString());
+                listDetails.setName(obj.get("login").getAsString());
+                if (!obj.get("html_url").isJsonNull()) {
+                    listDetails.setDescription(obj.get("html_url").getAsString());
                 } else {
                     listDetails.setDescription("No description provided.");
                 }
@@ -79,41 +96,10 @@ public class MainActivity extends AppCompatActivity {
         return ret;
     }
 
-    public void setListElements(String responseBody){
-
-        JsonParser jp = new JsonParser();
-        JsonElement root = jp.parse(responseBody);
-        final JsonArray jsonArray = root.getAsJsonArray();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final ListView listView = (ListView) findViewById(R.id.list_item);
-                ArrayList<ListDetails> list_details = getListViewElements(jsonArray);
-                listView.setAdapter(new ListBaseAdapter(getApplicationContext(), list_details));
-
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        JsonObject obj = jArr.get(i).getAsJsonObject();
-                        String url = obj.get("contributors_url").getAsString();
-
-                        Intent intent = new Intent(getApplicationContext(), subActivity.class);
-
-                        intent.putExtra("url", url);
-                        startActivity(intent);
-                    }
-                });
-            }
-        });
-
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_sub);
 
         getHttpResponse();
     }
