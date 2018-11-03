@@ -24,6 +24,7 @@ import okhttp3.Response;
 
 public class subActivity extends AppCompatActivity {
     OkHttpClient client = new OkHttpClient();
+    JsonArray jArr;
 
     public void getHttpResponse() {
         Request request = new Request.Builder().url(getIntent().getStringExtra("url")).build();
@@ -59,16 +60,24 @@ public class subActivity extends AppCompatActivity {
                 ArrayList<ListDetails> list_details = getListViewElements(jsonArray);
                 listView.setAdapter(new ListBaseAdapter(getApplicationContext(), list_details));
 
-//                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                    }
-//                });
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        JsonObject obj = jArr.get(i).getAsJsonObject();
+                        String url = obj.get("repos_url").getAsString();
+
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+                        intent.putExtra("url", url);
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }
 
     public ArrayList<ListDetails> getListViewElements(JsonArray jsonArray) {
+        jArr = jsonArray;
         ArrayList<ListDetails> ret = new ArrayList<ListDetails>();
 
         try {
@@ -82,6 +91,7 @@ public class subActivity extends AppCompatActivity {
                 } else {
                     listDetails.setDescription("No description provided.");
                 }
+                listDetails.setUrl(obj.get("avatar_url").getAsString());
                 ret.add(listDetails);
             }
         } catch (Exception e) {
