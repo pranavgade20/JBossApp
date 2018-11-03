@@ -1,6 +1,8 @@
 # JBossApp
 
 ## Libraries used:
-Okhttp
+Okhttp3(https://github.com/square/okhttp) for making API requests.
 
-Gson
+Gson(https://github.com/google/gson) for parsing JSON response.
+
+Glide(https://github.com/bumptech/glide) for loading photos.
